@@ -2,29 +2,68 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jord Hanjaras · Portfolio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
+  font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+  img-src 'self' data: https://flagcdn.com;
+  connect-src 'self' https://formspree.io;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self' https://formspree.io;">
+  <title>Jord Hanjaras · Portfolio Cybersécurité</title>
+  <!-- AUDIT FIX: preconnect + preload police critique -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <style>
-    /* ========== RESET & BASE ========== */
+    /* ========== RESET & VARIABLES ========== */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
+    /* AUDIT FIX: sr-only pour accessibilité lecteurs d'écran */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    :root {
+      --primary: #a02030;
+      --primary-light: #c84860;
+      --accent: #e58797;
+      --bg-dark: #0c0709;
+      --card-bg: rgba(18, 8, 10, 0.7);
+      --border-color: rgba(210, 70, 90, 0.4);
+      --text-light: #f5f5f5;
+      /* AUDIT FIX: contraste rehaussé pour WCAG AA/AAA */
+      --text-dim: #cbd5e1;
+      --text-secondary: #d4d4d4;
+    }
+
     body {
       font-family: 'Inter', sans-serif;
-      background: #0c0709;
+      /* AUDIT FIX: utilise la variable */
+      background: var(--bg-dark);
       min-height: 100vh;
-      color: #f5f5f5;
+      color: var(--text-light);
       line-height: 1.6;
       padding: 1.5rem;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
+      position: relative;
     }
 
     body::before {
@@ -34,11 +73,12 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: 
+      background:
         radial-gradient(circle at 20% 30%, rgba(180, 30, 50, 0.45) 0%, transparent 35%),
         radial-gradient(circle at 80% 70%, rgba(210, 60, 80, 0.3) 0%, transparent 40%),
-        radial-gradient(circle at 50% 50%, rgba(20, 5, 8, 0.9) 0%, transparent 70%);
+        radial-gradient(circle at 50% 50%, rgba(20, 5, 8, 0.95) 0%, transparent 70%);
       z-index: -2;
+      /* AUDIT FIX: animation sur opacity uniquement (plus de scale qui force repaint GPU massif) */
       animation: pulseGlow 12s infinite alternate ease-in-out;
     }
 
@@ -49,7 +89,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-image: 
+      background-image:
         linear-gradient(rgba(200, 70, 90, 0.03) 1px, transparent 1px),
         linear-gradient(90deg, rgba(200, 70, 90, 0.03) 1px, transparent 1px);
       background-size: 60px 60px;
@@ -57,9 +97,19 @@
       pointer-events: none;
     }
 
+    /* AUDIT FIX: plus de transform:scale sur fixed → opacity uniquement */
     @keyframes pulseGlow {
-      0% { opacity: 0.8; transform: scale(1); }
-      100% { opacity: 1; transform: scale(1.05); }
+      0%   { opacity: 0.8; }
+      100% { opacity: 1; }
+    }
+
+    /* AUDIT FIX: respect prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
     }
 
     .app-wrapper {
@@ -77,6 +127,7 @@
       gap: 1.5rem;
       margin-bottom: 3rem;
       position: relative;
+      z-index: 100;
     }
 
     .logo {
@@ -90,7 +141,7 @@
       border-radius: 60px;
       border: 1px solid rgba(210, 70, 90, 0.6);
       box-shadow: 0 20px 30px -10px rgba(0,0,0,0.5), 0 0 0 1px rgba(230, 100, 120, 0.2) inset;
-      color: #ffffff;
+      color: white;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     .logo:hover {
@@ -102,6 +153,67 @@
       margin-right: 12px;
       font-size: 1.8rem;
     }
+
+    /* AUDIT FIX: Toggle mode recruteur/technique */
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: rgba(15, 6, 8, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 0.5rem 1.2rem;
+      border-radius: 60px;
+      border: 1px solid rgba(210, 70, 90, 0.4);
+      font-size: 0.85rem;
+      color: #d4d4d4;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+    .mode-toggle:hover {
+      border-color: var(--accent);
+    }
+    .mode-toggle .toggle-label {
+      font-weight: 600;
+      color: var(--accent);
+      min-width: 80px;
+      text-align: center;
+    }
+    .toggle-switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      background: rgba(160, 30, 50, 0.4);
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      background: var(--accent);
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+    body.mode-tech .toggle-switch {
+      background: rgba(160, 30, 50, 0.8);
+    }
+    body.mode-tech .toggle-switch::after {
+      transform: translateX(16px);
+    }
+    body.mode-tech .mode-toggle .toggle-label {
+      color: #ff9fb0;
+    }
+    .content-recruiter { display: block; }
+    .content-tech { display: none; }
+    body.mode-tech .content-recruiter { display: none; }
+    body.mode-tech .content-tech { display: block; }
 
     .nav-menu {
       display: flex;
@@ -122,7 +234,7 @@
       padding: 0.8rem 1.6rem;
       font-size: 0.95rem;
       font-weight: 500;
-      color: #c0c0c0;
+      color: #d4d4d4;
       border-radius: 40px;
       cursor: pointer;
       transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
@@ -131,6 +243,18 @@
       white-space: nowrap;
       position: relative;
       overflow: hidden;
+    }
+
+    /* AUDIT FIX: focus visible pour navigation clavier */
+    .nav-btn:focus-visible,
+    .mobile-nav-btn:focus-visible,
+    .burger-btn:focus-visible,
+    .btn-primary:focus-visible,
+    .btn-outline:focus-visible,
+    .submit-btn:focus-visible,
+    .mode-toggle:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
     }
 
     .nav-btn i {
@@ -142,10 +266,8 @@
     .nav-btn::before {
       content: "";
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background: linear-gradient(135deg, rgba(180, 30, 50, 0.9), rgba(220, 80, 100, 0.7));
       opacity: 0;
       transition: opacity 0.25s;
@@ -153,60 +275,124 @@
       border-radius: 40px;
     }
 
-    .nav-btn:hover {
-      color: white;
-      transform: translateY(-2px);
-    }
-    .nav-btn:hover i {
-      color: white;
-    }
-    .nav-btn:hover::before {
-      opacity: 0.2;
-    }
+    .nav-btn:hover { color: white; transform: translateY(-2px); }
+    .nav-btn:hover i { color: white; }
+    .nav-btn:hover::before { opacity: 0.2; }
 
-    .nav-btn.active {
+    /* AUDIT FIX: aria-current="page" → active style */
+    .nav-btn.active,
+    .nav-btn[aria-current="page"] {
       background: linear-gradient(135deg, #a02030, #c04050);
       color: white;
       box-shadow: 0 10px 20px -8px rgba(180, 40, 60, 0.7), 0 0 0 1px rgba(255,255,255,0.1) inset;
       font-weight: 600;
       transform: scale(1.02);
     }
-    .nav-btn.active i {
+    .nav-btn.active i, .nav-btn[aria-current="page"] i { color: white; }
+
+    .burger-btn {
+      display: none;
+      background: rgba(15, 6, 8, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(210, 70, 90, 0.6);
+      border-radius: 50%;
+      width: 55px;
+      height: 55px;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
       color: white;
+      font-size: 1.8rem;
+      transition: all 0.3s;
+      box-shadow: 0 10px 20px -5px rgba(0,0,0,0.5);
+      z-index: 101;
     }
+    .burger-btn:hover { background: var(--primary); transform: scale(1.05); }
+
+    .mobile-menu-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      /* AUDIT FIX: 100dvh pour iOS Safari (avec fallback) */
+      height: 100vh;
+      height: 100dvh;
+      background: rgba(8, 3, 5, 0.98);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 99;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease, visibility 0.4s;
+    }
+    .mobile-menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .mobile-nav-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #ddd;
+      font-size: 2rem;
+      font-weight: 600;
+      padding: 1rem 2rem;
+      border-radius: 60px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-family: inherit;
+    }
+    .mobile-nav-btn i {
+      color: var(--accent);
+      font-size: 2rem;
+      width: 40px;
+    }
+    .mobile-nav-btn:hover {
+      color: white;
+      background: rgba(210,70,90,0.2);
+      border-color: var(--border-color);
+      transform: scale(1.05);
+    }
+    .mobile-nav-btn.active { background: var(--primary); color: white; }
 
     /* ========== CONTENU PRINCIPAL ========== */
+    /* AUDIT FIX: transition CSS correcte (visibility+opacity au lieu de display+opacity) */
     .page-section {
-      display: none;
+      visibility: hidden;
       opacity: 0;
-      transition: opacity 0.3s ease;
+      position: absolute;
+      width: 100%;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
     }
-
     .page-section.active {
-      display: block;
+      visibility: visible;
       opacity: 1;
+      position: relative;
+      pointer-events: auto;
     }
 
     .glass-card {
-      background: rgba(18, 8, 10, 0.7);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-radius: 48px;
       padding: 3rem;
-      border: 1px solid rgba(210, 70, 90, 0.4);
-      box-shadow: 
-        0 40px 60px -20px rgba(0, 0, 0, 0.8),
-        0 0 0 1px rgba(220, 90, 110, 0.15) inset,
-        0 0 30px rgba(180, 30, 50, 0.15) inset;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 40px 60px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(220,90,110,0.15) inset;
       margin-bottom: 2.5rem;
-      color: #f0f0f0;
+      color: var(--text-light);
       transition: transform 0.4s ease, box-shadow 0.4s ease;
     }
-
     .glass-card:hover {
-      box-shadow: 
-        0 50px 70px -25px rgba(0, 0, 0, 0.9),
-        0 0 0 1px rgba(230, 100, 120, 0.3) inset;
+      box-shadow: 0 50px 70px -25px rgba(0,0,0,0.9), 0 0 0 1px rgba(230,100,120,0.3) inset;
       transform: translateY(-4px);
     }
 
@@ -215,593 +401,619 @@
       font-weight: 700;
       letter-spacing: -0.03em;
       margin-bottom: 2.2rem;
-      color: #ffffff;
+      color: white;
       display: flex;
       align-items: center;
       gap: 18px;
-      border-bottom: 2px solid rgba(210, 70, 90, 0.6);
+      border-bottom: 2px solid rgba(210,70,90,0.6);
       padding-bottom: 1rem;
     }
-
     h2 i {
-      color: #e58797;
+      color: var(--accent);
       font-size: 2.2rem;
-      background: rgba(160, 30, 50, 0.4);
+      background: rgba(160,30,50,0.4);
       padding: 12px;
       border-radius: 20px;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
     }
-
     h3 {
       font-size: 1.8rem;
       font-weight: 600;
-      margin-top: 1.5rem;
-      margin-bottom: 1.2rem;
+      margin: 1.5rem 0 1.2rem;
       color: #f8f8f8;
-      letter-spacing: -0.02em;
     }
 
-    .highlight {
-      color: #eaa3af;
-      font-weight: 700;
+    /* ========== ACCUEIL ========== */
+    .home-card { padding: 3.5rem !important; overflow: hidden; }
+    .home-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 4rem;
+      align-items: center;
     }
-
-    /* ========== ACCUEIL REFONDU ========== */
-.home-card {
-  padding: 3.5rem !important;
-  overflow: hidden;
-  position: relative;
-}
-
-.home-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 4rem;
-  align-items: center;
-}
-
-/* Colonne texte */
-.home-content {
-  position: relative;
-  z-index: 2;
-}
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(40, 12, 16, 0.8);
-  backdrop-filter: blur(8px);
-  padding: 0.5rem 1.2rem;
-  border-radius: 40px;
-  border: 1px solid rgba(210, 70, 90, 0.5);
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #e0e0e0;
-  margin-bottom: 2rem;
-}
-
-.pulse-dot {
-  width: 10px;
-  height: 10px;
-  background: #4caf50;
-  border-radius: 50%;
-  box-shadow: 0 0 10px #4caf50;
-  animation: pulse-green 2s infinite;
-}
-
-@keyframes pulse-green {
-  0% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.2); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
-.home-title {
-  font-size: 4.5rem;
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  color: white;
-  margin-bottom: 1.5rem;
-}
-
-.text-gradient {
-  background: linear-gradient(135deg, #e58797, #c04050);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.home-description {
-  font-size: 1.2rem;
-  color: #cbd5e1;
-  max-width: 550px;
-  margin-bottom: 2.5rem;
-  line-height: 1.7;
-}
-
-/* Stats horizontales */
-.stats-row {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
-  flex-wrap: wrap;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-value {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #e58797;
-  line-height: 1.2;
-}
-
-.stat-caption {
-  font-size: 0.9rem;
-  color: #aaa;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.stat-divider {
-  width: 1px;
-  height: 40px;
-  background: rgba(210, 70, 90, 0.4);
-}
-
-/* Boutons */
-.home-actions {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #a02030, #c84860);
-  color: white;
-  padding: 1rem 2.5rem;
-  border-radius: 60px;
-  font-weight: 600;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 15px 25px -8px rgba(160, 32, 48, 0.5);
-  transition: all 0.3s;
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-.btn-primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 20px 30px -10px rgba(200, 50, 70, 0.7);
-  background: linear-gradient(135deg, #b02838, #d05868);
-}
-
-.btn-outline {
-  background: transparent;
-  color: #f0f0f0;
-  padding: 1rem 2.5rem;
-  border-radius: 60px;
-  font-weight: 500;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  border: 1.5px solid rgba(210, 70, 90, 0.7);
-  backdrop-filter: blur(8px);
-  transition: all 0.3s;
-}
-
-.btn-outline:hover {
-  background: rgba(210, 70, 90, 0.15);
-  border-color: #e58797;
-  transform: translateY(-3px);
-}
-
-/* Colonne visuelle */
-.home-visual {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 400px;
-}
-
-.visual-blob {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at 30% 40%, rgba(200, 70, 90, 0.4) 0%, rgba(20, 5, 8, 0.2) 70%);
-  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-  animation: blobMorph 12s infinite alternate;
-  filter: blur(40px);
-  z-index: 0;
-}
-
-@keyframes blobMorph {
-  0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-  50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
-  100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-}
-
-.visual-icon {
-  position: relative;
-  z-index: 2;
-  width: 260px;
-  height: 260px;
-  background: rgba(25, 10, 13, 0.8);
-  backdrop-filter: blur(12px);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 3px solid rgba(210, 70, 90, 0.8);
-  box-shadow: 0 30px 40px -15px rgba(0,0,0,0.7), 0 0 0 1px rgba(230,100,120,0.3) inset, 0 0 40px rgba(200,70,90,0.3);
-}
-
-.visual-icon i {
-  font-size: 7rem;
-  color: #f0e6e9;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
-}
-
-.floating-card {
-  position: absolute;
-  bottom: 20px;
-  right: 0;
-  background: rgba(40, 12, 16, 0.9);
-  backdrop-filter: blur(12px);
-  padding: 0.8rem 1.8rem;
-  border-radius: 60px;
-  border: 1px solid rgba(210, 70, 90, 0.7);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: 0 15px 25px -10px rgba(0,0,0,0.5);
-  z-index: 3;
-  animation: float 6s infinite alternate;
-}
-
-@keyframes float {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-10px); }
-}
-
-.floating-card i {
-  font-size: 1.5rem;
-  color: #e58797;
-}
-
-.floating-card span {
-  font-weight: 500;
-  color: white;
-}
-
-/* Responsive */
-@media (max-width: 1100px) {
-  .home-title {
-    font-size: 3.8rem;
-  }
-}
-
-@media (max-width: 900px) {
-  .home-grid {
-    grid-template-columns: 1fr;
-    gap: 3rem;
-  }
-  .home-visual {
-    order: -1; /* Image en haut sur mobile */
-    min-height: 300px;
-  }
-  .visual-icon {
-    width: 220px;
-    height: 220px;
-  }
-  .visual-icon i {
-    font-size: 5.5rem;
-  }
-  .home-title {
-    font-size: 3.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .home-card {
-    padding: 2rem !important;
-  }
-  .home-title {
-    font-size: 2.8rem;
-  }
-  .stats-row {
-    gap: 1rem;
-  }
-  .stat-value {
-    font-size: 2rem;
-  }
-  .home-actions {
-    flex-direction: column;
-  }
-  .btn-primary, .btn-outline {
-    justify-content: center;
-  }
-}
-
-    /* ========== À PROPOS ========== */
-    .about-text {
-      font-size: 1.2rem;
-      color: #d1d5db;
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(40,12,16,0.8);
+      backdrop-filter: blur(8px);
+      padding: 0.5rem 1.2rem;
+      border-radius: 40px;
+      border: 1px solid var(--border-color);
       margin-bottom: 2rem;
     }
+    .pulse-dot {
+      width: 10px; height: 10px;
+      background: #4caf50;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #4caf50;
+      animation: pulse-green 2s infinite;
+    }
+    @keyframes pulse-green {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.2); }
+    }
+    .home-title {
+      font-size: 4.5rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+    .text-gradient {
+      background: linear-gradient(135deg, #e58797, #c04050);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .home-description {
+      font-size: 1.2rem;
+      color: var(--text-dim);
+      max-width: 550px;
+      margin-bottom: 2.5rem;
+    }
+    .stats-row {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+    }
+    .stat-item { display: flex; flex-direction: column; }
+    .stat-value { font-size: 2.5rem; font-weight: 800; color: var(--accent); }
+    .stat-caption { font-size: 0.9rem; color: var(--text-secondary); }
+    .stat-divider { width: 1px; height: 40px; background: var(--border-color); }
+    .home-actions { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .btn-primary, .btn-outline {
+      padding: 1rem 2.5rem;
+      border-radius: 60px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      box-shadow: 0 15px 25px -8px rgba(160,32,48,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 20px 30px -10px rgba(200,50,70,0.7); }
+    .btn-outline {
+      background: transparent;
+      color: #f0f0f0;
+      border: 1.5px solid rgba(210,70,90,0.7);
+      backdrop-filter: blur(8px);
+    }
+    .btn-outline:hover { background: rgba(210,70,90,0.15); border-color: var(--accent); transform: translateY(-3px); }
 
-    /* ========== TIMELINE EXPERIENCES MODERNE ========== */
-.timeline-modern {
-  position: relative;
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 2rem 0;
+    .home-visual {
+      position: relative;
+      min-height: 400px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .visual-blob {
+      position: absolute;
+      width: 100%; height: 100%;
+      background: radial-gradient(circle at 30% 40%, rgba(200,70,90,0.4) 0%, transparent 70%);
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+      /* AUDIT FIX: blobMorph mis en pause hors section accueil via JS */
+      animation: blobMorph 12s infinite alternate;
+      filter: blur(40px);
+    }
+    @keyframes blobMorph {
+      0%   { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+      100% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+    }
+    .visual-icon {
+      position: relative;
+      z-index: 2;
+      width: 260px; height: 260px;
+      background: rgba(25,10,13,0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid rgba(210,70,90,0.8);
+      box-shadow: 0 30px 40px -15px black;
+    }
+    .visual-icon i { font-size: 7rem; color: #f0e6e9; }
+    .floating-card {
+      position: absolute;
+      bottom: 20px; right: 0;
+      background: rgba(40,12,16,0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 0.8rem 1.8rem;
+      border-radius: 60px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: float 6s infinite alternate;
+      z-index: 3;
+    }
+    @keyframes float {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(-10px); }
+    }
+
+    /* ========== À PROPOS ========== */
+    .about-text { font-size: 1.2rem; color: var(--text-dim); margin-bottom: 2rem; }
+
+    /* ========== TERMINAL INTERACTIF (Next-Level #1) ========== */
+    .terminal {
+      background: #080508;
+      border-radius: 24px;
+      border: 1px solid rgba(210,70,90,0.5);
+      overflow: hidden;
+      margin-top: 2rem;
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.8);
+    }
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0.8rem 1.2rem;
+      background: rgba(25,10,14,0.9);
+      border-bottom: 1px solid rgba(210,70,90,0.2);
+    }
+    .term-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .term-dot.r { background: #ff5f57; }
+    .term-dot.y { background: #febc2e; }
+    .term-dot.g { background: #28c840; }
+    .terminal-title { font-size: 0.8rem; color: #888; margin-left: auto; font-family: monospace; }
+    .terminal-body {
+      padding: 1.2rem 1.5rem;
+      min-height: 260px;
+      max-height: 340px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+    }
+    .term-line { color: #d4d4d4; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+    .term-line.prompt { color: #e58797; }
+    .term-line.output { color: #a8d8b0; }
+    .term-line.error  { color: #ff6b6b; }
+    .term-line.info   { color: #89c4e1; }
+    .terminal-input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0.6rem 1.5rem 1.2rem;
+    }
+    .term-prompt-sign { color: #e58797; font-family: monospace; font-size: 0.95rem; white-space: nowrap; }
+    .terminal-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #f5f5f5;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      flex: 1;
+      caret-color: var(--accent);
+    }
+
+    /* ========== TIMELINE MODERNE ========== */
+    .timeline-modern {
+      position: relative;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem 0;
+    }
+    .timeline-modern::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      width: 3px;
+      height: 100%;
+      background: linear-gradient(to bottom, transparent, var(--primary-light), transparent);
+      transform: translateX(-50%);
+    }
+    .timeline-item-modern {
+      display: flex;
+      justify-content: flex-end;
+      padding-right: calc(50% + 30px);
+      margin-bottom: 3rem;
+      position: relative;
+    }
+    .timeline-item-modern.right {
+      justify-content: flex-start;
+      padding-left: calc(50% + 30px);
+      padding-right: 0;
+    }
+    .timeline-content {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 1.8rem 2rem;
+      border-radius: 32px;
+      border: 1px solid var(--border-color);
+      max-width: 400px;
+      transition: all 0.3s;
+    }
+    .timeline-content:hover {
+      transform: translateY(-6px);
+      border-color: var(--primary-light);
+      box-shadow: 0 25px 40px -12px rgba(180,30,50,0.6);
+    }
+    .timeline-icon {
+      position: absolute;
+      top: 20px;
+      right: -70px;
+      width: 50px; height: 50px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+      box-shadow: 0 10px 20px -5px rgba(160,32,48,0.6);
+      z-index: 2;
+    }
+    .timeline-item-modern.right .timeline-icon { left: -70px; right: auto; }
+    .timeline-date-badge {
+      display: inline-block;
+      background: rgba(180,40,60,0.3);
+      color: var(--accent);
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border-color);
+    }
+    /* AUDIT FIX: timeline transferable skills */
+    .timeline-transfer {
+      margin-top: 0.8rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-style: italic;
+      border-left: 2px solid rgba(210,70,90,0.4);
+      padding-left: 0.8rem;
+    }
+
+    /* ========== COMPÉTENCES (REFONTE 2026) ========== */
+.skills-showcase {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  margin-top: 1rem;
 }
 
-.timeline-modern::before {
+/* Grille des compétences techniques */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.8rem;
+}
+
+.skill-card {
+  background: rgba(20, 8, 12, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 32px;
+  padding: 1.8rem 1.5rem;
+  border: 1px solid rgba(210, 70, 90, 0.3);
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+.skill-card::before {
   content: '';
   position: absolute;
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: linear-gradient(to bottom, 
-    rgba(210,70,90,0.1), 
-    rgba(210,70,90,0.8) 20%, 
-    rgba(210,70,90,0.8) 80%, 
-    rgba(210,70,90,0.1));
-  transform: translateX(-50%);
-  box-shadow: 0 0 15px rgba(210,70,90,0.3);
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(200, 70, 90, 0.15), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
 }
 
-.timeline-item-modern {
-  display: flex;
-  justify-content: flex-end;
-  padding-right: calc(50% + 30px);
-  margin-bottom: 3rem;
-  position: relative;
+.skill-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(200, 70, 90, 0.8);
+  box-shadow: 0 25px 40px -12px rgba(180, 30, 50, 0.4);
 }
 
-.timeline-item-modern.right {
-  justify-content: flex-start;
-  padding-left: calc(50% + 30px);
-  padding-right: 0;
+.skill-card:hover::before {
+  opacity: 1;
 }
 
-.timeline-content {
-  background: rgba(25, 10, 13, 0.8);
-  backdrop-filter: blur(12px);
-  padding: 1.8rem 2rem;
-  border-radius: 32px;
-  border: 1px solid rgba(210, 70, 90, 0.5);
-  width: 100%;
-  max-width: 400px;
-  position: relative;
-  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-  box-shadow: 0 15px 30px -10px rgba(0,0,0,0.5);
-}
-
-.timeline-content:hover {
-  transform: translateY(-6px);
-  border-color: #c84860;
-  box-shadow: 0 25px 40px -12px rgba(180, 30, 50, 0.6), 0 0 0 1px rgba(230,100,120,0.2) inset;
-  background: rgba(35, 12, 16, 0.9);
-}
-
-.timeline-icon {
-  position: absolute;
-  top: 20px;
-  right: -70px;
-  width: 50px;
-  height: 50px;
+.skill-icon {
+  width: 56px;
+  height: 56px;
   background: linear-gradient(135deg, #a02030, #c84860);
   border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 10px 20px -5px rgba(160, 32, 48, 0.5);
+  transition: transform 0.2s;
+}
+
+.skill-card:hover .skill-icon {
+  transform: scale(1.05);
+}
+
+.skill-icon i {
+  font-size: 2rem;
   color: white;
-  font-size: 1.5rem;
-  box-shadow: 0 10px 20px -5px rgba(160, 32, 48, 0.6);
-  border: 2px solid rgba(255,255,255,0.2);
-  z-index: 2;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 
-.timeline-item-modern.right .timeline-icon {
-  left: -70px;
-  right: auto;
+.skill-name {
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: white;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
 }
 
-.timeline-date-badge {
-  display: inline-block;
-  background: rgba(180, 40, 60, 0.3);
-  color: #e58797;
-  padding: 0.3rem 1.2rem;
-  border-radius: 40px;
+.skill-level {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.skill-level-text {
   font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  border: 1px solid rgba(210,70,90,0.4);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.skill-percent-badge {
+  margin-left: auto;
+  background: rgba(180, 40, 60, 0.25);
+  padding: 0.25rem 0.8rem;
+  border-radius: 30px;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: 1px solid rgba(210, 70, 90, 0.3);
   backdrop-filter: blur(4px);
 }
 
-.timeline-content h3 {
-  font-size: 1.6rem;
-  margin: 0 0 0.8rem 0;
+.progress-bar-modern {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.progress-fill-modern {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #c04050, #e58797);
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(220, 90, 110, 0.5);
+  transition: width 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 0.1s;
+}
+
+/* Soft Skills – badges modernisés */
+.soft-skills-container {
+  margin-top: 1rem;
+}
+
+.soft-skills-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #f8f8f8;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.soft-skills-title i {
+  color: var(--accent);
+  font-size: 2rem;
+  background: rgba(160, 30, 50, 0.4);
+  padding: 10px;
+  border-radius: 16px;
+}
+
+.soft-skills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;  /* Centre horizontalement */
+  align-items: center;      /* Centre verticalement */
+  text-align: center;       /* Centre le texte (redondant mais safe) */
+}
+
+.soft-skill-item {
+  background: rgba(30, 10, 14, 0.7);
+  backdrop-filter: blur(8px);
+  padding: 0.9rem 1.8rem;
+  border-radius: 60px;
+  border: 1px solid rgba(210, 70, 90, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  color: #f0f0f0;
+  transition: all 0.25s;
+  box-shadow: 0 5px 15px -5px rgba(0,0,0,0.3);
+}
+
+.soft-skill-item i {
+  color: var(--accent);
+  font-size: 1.2rem;
+}
+
+.soft-skill-item:hover {
+  background: var(--primary);
+  border-color: rgba(230, 100, 120, 0.8);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px -8px rgba(160, 32, 48, 0.5);
+}
+
+/* Langues – cartes enrichies */
+.languages-showcase {
+  margin-top: 2rem;
+}
+
+.languages-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #f8f8f8;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.languages-title i {
+  color: var(--accent);
+  font-size: 2rem;
+  background: rgba(160, 30, 50, 0.4);
+  padding: 10px;
+  border-radius: 16px;
+}
+
+.languages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1.5rem;
+}
+
+.language-card {
+  background: rgba(20, 8, 12, 0.7);
+  backdrop-filter: blur(8px);
+  padding: 1.8rem 1rem;
+  border-radius: 32px;
+  border: 1px solid rgba(210, 70, 90, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.25s;
+}
+
+.language-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(200, 70, 90, 0.8);
+  box-shadow: 0 20px 30px -10px rgba(0,0,0,0.5);
+  background: rgba(35, 12, 16, 0.8);
+}
+
+.language-flag {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  margin-bottom: 1rem;
+  border: 2px solid rgba(210, 70, 90, 0.5);
+  object-fit: cover;
+  box-shadow: 0 8px 15px -5px rgba(0,0,0,0.5);
+  background: rgba(255,255,255,0.05);
+  transition: transform 0.2s;
+}
+
+.language-card:hover .language-flag {
+  transform: scale(1.05);
+}
+
+.language-name {
+  font-weight: 700;
+  font-size: 1.25rem;
   color: white;
+  margin-bottom: 0.25rem;
 }
 
-.timeline-content p {
-  color: #cbd5e1;
-  font-size: 1rem;
-  line-height: 1.5;
+.language-level {
+  font-size: 0.9rem;
+  color: var(--accent);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(160, 30, 50, 0.2);
+  padding: 0.2rem 1rem;
+  border-radius: 30px;
+  margin-top: 0.5rem;
+  border: 1px solid rgba(210, 70, 90, 0.2);
 }
 
-/* Responsive timeline */
-@media (max-width: 768px) {
-  .timeline-modern::before {
-    left: 30px;
-  }
-  .timeline-item-modern,
-  .timeline-item-modern.right {
-    justify-content: flex-start;
-    padding-left: 80px;
-    padding-right: 0;
-  }
-  .timeline-content {
-    max-width: 100%;
-  }
-  .timeline-icon {
-    left: 5px !important;
-    right: auto !important;
-    top: 20px;
-  }
-}
 
-@media (max-width: 480px) {
-  .timeline-content {
-    padding: 1.5rem;
-  }
-  .timeline-content h3 {
-    font-size: 1.3rem;
-  }
-}
-
-    /* ========== COMPÉTENCES ========== */
-    .skills-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1.8rem;
-      margin: 2rem 0;
-    }
-    .skill-item-progress {
-      background: rgba(25, 10, 13, 0.7);
-      border-radius: 28px;
-      padding: 1.5rem 1.2rem;
-      border: 1px solid rgba(210, 70, 90, 0.4);
-      backdrop-filter: blur(8px);
-      transition: all 0.2s;
-      display: flex;
-      flex-direction: column;
-    }
-    .skill-item-progress:hover {
-      background: rgba(50, 15, 20, 0.8);
-      border-color: #c84860;
-    }
-    .skill-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 1rem;
-      min-height: 3.2rem;
-    }
-    .skill-header i {
-      font-size: 1.5rem;
-      color: #e58797;
-      width: 30px;
-      text-align: center;
-    }
-    .skill-header span {
-      font-weight: 600;
-      font-size: 1.1rem;
-      line-height: 1.3;
-      flex: 1;
-    }
-    .progress-bar {
-      height: 8px;
-      background: rgba(0,0,0,0.4);
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
-      width: 100%;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #c04050, #e58797);
-      border-radius: 10px;
-      width: 0%;
-      transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
-      box-shadow: 0 0 10px rgba(220, 90, 110, 0.7);
-    }
-    .soft-skills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
+    /* Soft skills */
+    .soft-skills { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.5rem; }
     .soft-badge {
       background: rgba(50, 15, 20, 0.8);
       padding: 0.8rem 2rem;
       border-radius: 50px;
-      border: 1px solid rgba(210, 70, 90, 0.6);
+      border: 1px solid var(--border-color);
       backdrop-filter: blur(8px);
       font-weight: 500;
       color: #f0f0f0;
       transition: 0.2s;
       font-size: 1.05rem;
     }
-    .soft-badge i {
-      margin-right: 10px;
-      color: #e58797;
-    }
-    .soft-badge:hover {
-      background: #a02030;
-      transform: scale(1.02);
-    }
+    .soft-badge i { margin-right: 10px; color: var(--accent); }
+    .soft-badge:hover { background: var(--primary); transform: scale(1.02); }
 
-    /* ========== LANGUES ========== */
+    /* Langues */
     .languages-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      /* AUDIT FIX: minmax réduit pour 320px */
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 1.2rem;
       margin-top: 1.5rem;
     }
     .lang-card {
-      background: rgba(30, 10, 14, 0.7);
+      background: var(--card-bg);
       backdrop-filter: blur(8px);
-      padding: 1.2rem 1rem;
+      -webkit-backdrop-filter: blur(8px);
+      padding: 1.5rem 0.8rem;
       border-radius: 28px;
-      border: 1px solid rgba(210, 70, 90, 0.4);
+      border: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       text-align: center;
       transition: all 0.25s;
     }
-    .lang-card:hover {
-      transform: translateY(-4px);
-      border-color: #c84860;
-      background: rgba(50, 15, 20, 0.8);
-      box-shadow: 0 15px 25px -10px rgba(0,0,0,0.5);
-    }
+    .lang-card:hover { transform: translateY(-4px) scale(1.02); border-color: var(--primary-light); }
     .lang-flag-img {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      margin-bottom: 0.5rem;
+      width: 56px; height: 56px;
+      border-radius: 16px;
+      margin-bottom: 0.8rem;
+      border: 1px solid var(--border-color);
+      object-fit: cover;
       box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-      border: 1px solid rgba(210,70,90,0.3);
+      background-color: rgba(255,255,255,0.05);
     }
-    .lang-name {
-      font-weight: 600;
-      font-size: 1.2rem;
-      color: #f0f0f0;
-    }
-    .lang-level {
-      font-size: 0.9rem;
-      color: #e58797;
-      margin-top: 0.25rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+    .lang-name { font-weight: 600; font-size: 1.2rem; color: #f0f0f0; margin-bottom: 0.2rem; line-height: 1.3; }
+    .lang-level { font-size: 0.9rem; color: var(--accent); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
 
     /* ========== FORMATION ========== */
     .edu-grid {
@@ -813,25 +1025,15 @@
     .edu-card {
       background: rgba(30, 10, 14, 0.7);
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       padding: 2rem;
       border-radius: 36px;
-      border: 1px solid rgba(210, 70, 90, 0.4);
+      border: 1px solid var(--border-color);
       transition: all 0.25s;
     }
-    .edu-card:hover {
-      transform: translateY(-6px);
-      border-color: #c84860;
-      box-shadow: 0 20px 30px -10px rgba(200, 50, 70, 0.4);
-    }
-    .edu-icon {
-      font-size: 2.5rem;
-      color: #e58797;
-      margin-bottom: 1rem;
-    }
-    .edu-card h3 {
-      font-size: 1.5rem;
-      margin: 0.5rem 0 0.25rem;
-    }
+    .edu-card:hover { transform: translateY(-6px); border-color: var(--primary-light); box-shadow: 0 20px 30px -10px rgba(200,50,70,0.4); }
+    .edu-icon { font-size: 2.5rem; color: var(--accent); margin-bottom: 1rem; }
+    .edu-card h3 { font-size: 1.5rem; margin: 0.5rem 0 0.25rem; }
 
     /* ========== PROJETS ========== */
     .projects-grid {
@@ -843,22 +1045,31 @@
     .project-card {
       background: rgba(25, 10, 13, 0.7);
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-radius: 40px;
       padding: 2.2rem 1.8rem;
-      border: 1px solid rgba(210, 70, 90, 0.45);
+      border: 1px solid var(--border-color);
       transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
       position: relative;
       z-index: 1;
     }
-    .project-card:hover {
-      transform: translateY(-10px) scale(1.02);
-      background: rgba(45, 15, 20, 0.85);
-      box-shadow: 0 30px 40px -15px rgba(0,0,0,0.7);
+    .project-card:hover { transform: translateY(-10px) scale(1.02); background: rgba(45,15,20,0.85); box-shadow: 0 30px 40px -15px rgba(0,0,0,0.7); }
+    .project-card > i { font-size: 2.8rem; color: var(--accent); margin-bottom: 1.5rem; display: block; }
+    /* AUDIT FIX: badge de métriques projet */
+    .project-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
     }
-    .project-card i {
-      font-size: 2.8rem;
-      color: #e58797;
-      margin-bottom: 1.5rem;
+    .metric-badge {
+      background: rgba(180,40,60,0.2);
+      border: 1px solid rgba(210,70,90,0.3);
+      color: var(--accent);
+      padding: 0.25rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
     }
 
     /* ========== CONTACT ========== */
@@ -874,57 +1085,30 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 1rem;
     }
     #qrcode {
-      width: 220px;
-      height: 220px;
+      width: 220px; height: 220px;
       background: white;
       padding: 12px;
       border-radius: 24px;
       box-shadow: 0 20px 30px -8px rgba(0,0,0,0.5);
-      border: 1px solid rgba(210, 70, 90, 0.6);
+      border: 1px solid rgba(210,70,90,0.6);
       margin-bottom: 1.5rem;
     }
-    .qr-legend {
-      font-size: 1rem;
-      color: #ddd;
-      margin-bottom: 0.5rem;
-    }
-    .qr-legend i {
-      margin-right: 8px;
-      color: #e58797;
-    }
-    .qr-note {
-      font-size: 0.85rem;
-      color: #aaa;
-    }
-    .qr-note i {
-      margin-right: 6px;
-    }
-    .contact-form-container {
-      width: 100%;
-    }
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      color: #e0e0e0;
-      font-size: 0.95rem;
-    }
-    .form-group label i {
-      width: 24px;
-      color: #e58797;
-    }
+    #qrcode svg { display: block; width: 100%; height: 100%; }
+    .qr-legend { font-size: 1rem; color: #ddd; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    /* AUDIT FIX: couleur rehaussée pour WCAG */
+    .qr-note { font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .contact-form-container { width: 100%; max-width: 500px; margin: 0 auto; }
+    .form-group { margin-bottom: 1.5rem; text-align: left; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #e0e0e0; font-size: 0.95rem; }
+    .form-group label i { width: 24px; color: var(--accent); margin-right: 4px; }
     .form-group input,
     .form-group textarea {
       width: 100%;
       padding: 1rem 1.2rem;
       background: rgba(18, 6, 9, 0.8);
-      border: 1px solid rgba(210, 70, 90, 0.5);
+      border: 1px solid var(--border-color);
       border-radius: 20px;
       backdrop-filter: blur(8px);
       font-family: 'Inter', sans-serif;
@@ -932,470 +1116,858 @@
       color: white;
       outline: none;
       transition: border 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
     }
     .form-group input:focus,
     .form-group textarea:focus {
-      border-color: #e58797;
+      border-color: var(--accent);
       box-shadow: 0 0 0 4px rgba(180, 40, 60, 0.3);
     }
-    .form-group textarea {
-      resize: vertical;
-      min-height: 120px;
-    }
+    .form-group textarea { resize: vertical; min-height: 120px; }
     .submit-btn {
       width: 100%;
-      background: linear-gradient(135deg, #a02030, #c84860);
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
       color: white;
-      border: none;
+      border: 1px solid rgba(255,255,255,0.1);
       padding: 1.2rem;
       border-radius: 40px;
       font-weight: 700;
       font-size: 1.1rem;
       cursor: pointer;
       transition: all 0.3s;
-      border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 10px 20px -5px rgba(180, 40, 60, 0.6);
+      box-shadow: 0 10px 20px -5px rgba(180,40,60,0.6);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
+      margin-top: 0.5rem;
+      font-family: inherit;
     }
-    .submit-btn:hover {
-      background: #c04050;
-      transform: scale(0.98);
-      box-shadow: 0 8px 18px rgba(200, 50, 70, 0.9);
-    }
-    .form-status {
-      margin-top: 1rem;
-      font-size: 0.95rem;
-      text-align: center;
-      min-height: 24px;
-      color: #e58797;
-    }
+    .submit-btn:hover { background: #c04050; transform: scale(0.98); box-shadow: 0 8px 18px rgba(200,50,70,0.9); }
+    .form-status { margin-top: 1rem; font-size: 0.95rem; text-align: center; min-height: 24px; color: var(--accent); }
 
     /* ========== FOOTER ========== */
     footer {
       margin-top: 3rem;
       text-align: center;
-      color: #bbb;
+      /* AUDIT FIX: rehaussé pour WCAG */
+      color: var(--text-secondary);
       font-size: 1rem;
     }
 
     /* ========== RESPONSIVE ========== */
     @media (max-width: 900px) {
+      .nav-menu { display: none; }
+      .burger-btn { display: flex; }
       .home-grid { grid-template-columns: 1fr; }
       .contact-flex { grid-template-columns: 1fr; }
-      .glass-card { padding: 2rem; }
+      .timeline-modern::before { left: 30px; }
+      .timeline-item-modern,
+      .timeline-item-modern.right {
+        justify-content: flex-start;
+        padding-left: 80px;
+        padding-right: 0;
+      }
+      .timeline-icon { left: 5px !important; right: auto !important; }
+      /* AUDIT FIX: masquer le toggle mode sur mobile (espace insuffisant) */
+      .mode-toggle { display: none; }
     }
-    @media (max-width: 768px) {
-      body { padding: 1rem; }
-      header { flex-direction: column; align-items: stretch; }
-      .nav-menu { justify-content: center; overflow-x: auto; }
-      .skills-grid { grid-template-columns: 1fr; }
-      .projects-grid { grid-template-columns: 1fr; }
-    }
+
     @media (max-width: 480px) {
-      .glass-card { padding: 1.5rem; }
-      h2 { font-size: 1.8rem; }
-      .home-info h1 { font-size: 2.8rem; }
+      body { padding: 0.8rem; }
+      .glass-card { padding: 1.5rem; border-radius: 28px; }
+      .home-title { font-size: 2.8rem; }
+      .stats-row { gap: 0.8rem; }
+      .stat-value { font-size: 2rem; }
+      .lang-flag-img { width: 48px; height: 48px; }
+      .lang-name { font-size: 1rem; }
+      /* AUDIT FIX: timeline sur très petits écrans */
+      .timeline-item-modern,
+      .timeline-item-modern.right { padding-left: 70px; }
+      .timeline-content { max-width: 100%; padding: 1.2rem; }
+    }
+
+    /* AUDIT FIX: iPhone SE et très petits écrans */
+    @media (max-width: 360px) {
+      .home-title { font-size: 2.2rem; }
+      .timeline-item-modern,
+      .timeline-item-modern.right { padding-left: 60px; }
+    }
+
+    /* AUDIT FIX: grands écrans 1440px+ */
+    @media (min-width: 1400px) {
+      body { padding: 0; }
+      .app-wrapper { padding: 1.5rem; }
     }
   </style>
 </head>
 <body>
 <div class="app-wrapper">
   <header>
-    <div class="logo">
-      <i class="fas fa-shield-alt"></i> Jord Hanjaras
-    </div>
-    <nav class="nav-menu">
-      <button class="nav-btn active" data-page="home"><i class="fas fa-home"></i> Accueil</button>
-      <button class="nav-btn" data-page="about"><i class="fas fa-user"></i> À propos</button>
-      <button class="nav-btn" data-page="experience"><i class="fas fa-briefcase"></i> Expériences</button>
-      <button class="nav-btn" data-page="skills"><i class="fas fa-cog"></i> Compétences</button>
-      <button class="nav-btn" data-page="education"><i class="fas fa-graduation-cap"></i> Formation</button>
-      <button class="nav-btn" data-page="projects"><i class="fas fa-code-branch"></i> Projets</button>
-      <button class="nav-btn" data-page="contact"><i class="fas fa-envelope"></i> Contact</button>
+    <div class="logo" role="banner"><i class="fas fa-shield-alt" aria-hidden="true"></i> Jord Hanjaras</div>
+
+    <!-- AUDIT FIX: nav avec role, aria-label -->
+    <nav class="nav-menu" role="navigation" aria-label="Navigation principale">
+      <button class="nav-btn active" data-page="home" aria-current="page"><i class="fas fa-home" aria-hidden="true"></i> Accueil</button>
+      <button class="nav-btn" data-page="about"><i class="fas fa-user" aria-hidden="true"></i> À propos</button>
+      <button class="nav-btn" data-page="experience"><i class="fas fa-briefcase" aria-hidden="true"></i> Expériences</button>
+      <button class="nav-btn" data-page="skills"><i class="fas fa-cog" aria-hidden="true"></i> Compétences</button>
+      <button class="nav-btn" data-page="education"><i class="fas fa-graduation-cap" aria-hidden="true"></i> Formation</button>
+      <button class="nav-btn" data-page="projects"><i class="fas fa-code-branch" aria-hidden="true"></i> Projets</button>
+      <button class="nav-btn" data-page="contact"><i class="fas fa-envelope" aria-hidden="true"></i> Contact</button>
     </nav>
+
+    <!-- AUDIT FIX Next-Level #3 : toggle mode Recruteur / Technique -->
+    <div class="mode-toggle" role="button" tabindex="0" id="modeToggle" aria-pressed="false" title="Basculer entre le mode Recruteur et Technique">
+      <i class="fas fa-eye" aria-hidden="true"></i>
+      <span class="toggle-label" id="modeLabel">Recruteur</span>
+      <div class="toggle-switch" aria-hidden="true"></div>
+    </div>
+
+    <!-- AUDIT FIX: aria-label sur burger, aria-expanded -->
+    <button class="burger-btn" aria-label="Ouvrir le menu de navigation" aria-expanded="false" aria-controls="mobileMenu">
+      <i class="fas fa-bars" aria-hidden="true"></i>
+    </button>
   </header>
 
-  <!-- ACCUEIL · REFONTE MODERNE -->
-<section id="home" class="page-section active">
-  <div class="glass-card home-card">
-    <div class="home-grid">
-      <!-- COLONNE GAUCHE : TEXTE + STATS -->
-      <div class="home-content">
-        <div class="status-badge">
-          <span class="pulse-dot"></span> Disponible pour missions
-        </div>
-        
-        <h1 class="home-title">
-          Sécuriser le <span class="text-gradient">futur</span><br>
-          un câble à la fois.
-        </h1>
-        
-        <p class="home-description">
-          Technicien polyvalent alliant <strong>rigueur industrielle</strong> et <strong>passion cyber</strong>. 
-          Du câblage spatial à la protection des données, je construis des fondations solides.
-        </p>
-        
-        <!-- Statistiques intégrées horizontalement -->
-        <div class="stats-row">
-          <div class="stat-item">
-            <span class="stat-value">6+</span>
-            <span class="stat-caption">années d'expérience</span>
+  <!-- AUDIT FIX: id + role sur overlay mobile -->
+  <nav id="mobileMenu" class="mobile-menu-overlay" role="navigation" aria-label="Menu mobile" aria-hidden="true">
+    <button class="mobile-nav-btn active" data-page="home"><i class="fas fa-home" aria-hidden="true"></i> Accueil</button>
+    <button class="mobile-nav-btn" data-page="about"><i class="fas fa-user" aria-hidden="true"></i> À propos</button>
+    <button class="mobile-nav-btn" data-page="experience"><i class="fas fa-briefcase" aria-hidden="true"></i> Expériences</button>
+    <button class="mobile-nav-btn" data-page="skills"><i class="fas fa-cog" aria-hidden="true"></i> Compétences</button>
+    <button class="mobile-nav-btn" data-page="education"><i class="fas fa-graduation-cap" aria-hidden="true"></i> Formation</button>
+    <button class="mobile-nav-btn" data-page="projects"><i class="fas fa-code-branch" aria-hidden="true"></i> Projets</button>
+    <button class="mobile-nav-btn" data-page="contact"><i class="fas fa-envelope" aria-hidden="true"></i> Contact</button>
+  </nav>
+
+  <!-- ACCUEIL -->
+  <section id="home" class="page-section active" aria-label="Accueil">
+    <div class="glass-card home-card">
+      <div class="home-grid">
+        <div class="home-content">
+          <div class="status-badge" role="status"><span class="pulse-dot" aria-hidden="true"></span> Disponible pour missions</div>
+
+          <!-- Mode recruteur -->
+          <div class="content-recruiter">
+            <h1 class="home-title">Sécuriser le <span class="text-gradient">futur</span><br>un câble à la fois.</h1>
+            <p class="home-description">Technicien polyvalent alliant <strong>rigueur industrielle</strong> et <strong>passion cyber</strong>. Du câblage spatial à la protection des données.</p>
           </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <span class="stat-value">15+</span>
-            <span class="stat-caption">projets livrés</span>
+          <!-- Mode technique -->
+          <div class="content-tech">
+            <h1 class="home-title">Red team <span class="text-gradient">mindset</span>,<br>blue team skills.</h1>
+            <p class="home-description">Stack : Kali Linux · Nmap · Wireshark · Metasploit · BurpSuite · OSINT. Certifications visées : CompTIA Security+, CEH.</p>
           </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <span class="stat-value">100%</span>
-            <span class="stat-caption">rigueur spatiale</span>
+
+          <div class="stats-row" aria-label="Statistiques clés">
+            <div class="stat-item"><span class="stat-value">6+</span><span class="stat-caption">années d'expérience</span></div>
+            <div class="stat-divider" aria-hidden="true"></div>
+            <!-- AUDIT FIX: chiffre cohérent avec le contenu -->
+            <div class="stat-item"><span class="stat-value">50+</span><span class="stat-caption">challenges CTF</span></div>
+            <div class="stat-divider" aria-hidden="true"></div>
+            <div class="stat-item"><span class="stat-value">3</span><span class="stat-caption">plateformes CTF</span></div>
+          </div>
+          <div class="home-actions">
+            <a href="#" class="btn-primary"><i class="fas fa-download" aria-hidden="true"></i> Télécharger CV</a>
+            <a href="#contact" class="btn-outline nav-btn-trigger" data-page="contact"><i class="fas fa-comment-dots" aria-hidden="true"></i> Me contacter</a>
           </div>
         </div>
-        
-        <!-- Boutons d'action -->
-        <div class="home-actions">
-          <a href="#" class="btn-primary">
-            <i class="fas fa-download"></i> Télécharger CV
-          </a>
-          <a href="#contact" class="btn-outline nav-btn-trigger" data-page="contact">
-            <i class="fas fa-comment-dots"></i> Me contacter
-          </a>
-        </div>
-      </div>
-      
-      <!-- COLONNE DROITE : VISUEL ABSTRAIT -->
-      <div class="home-visual">
-        <div class="visual-blob"></div>
-        <div class="visual-icon">
-          <i class="fas fa-user-secret"></i> <!-- Icône bouclier cyber stylisé -->
-        </div>
-        <!-- Petite carte flottante avec info -->
-        <div class="floating-card">
-          <i class="fas fa-microchip"></i>
-          <span>Expertise câblage & cyber</span>
+        <div class="home-visual" aria-hidden="true">
+          <div class="visual-blob" id="blobAnim"></div>
+          <div class="visual-icon"><i class="fas fa-user-secret"></i></div>
+          <div class="floating-card"><i class="fas fa-microchip" aria-hidden="true"></i><span>Expertise câblage &amp; cyber</span></div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
   <!-- À PROPOS -->
-  <section id="about" class="page-section">
+  <section id="about" class="page-section" aria-label="À propos">
     <div class="glass-card">
-      <h2><i class="fas fa-user-astronaut"></i> Mon parcours</h2>
+      <h2><i class="fas fa-user-astronaut" aria-hidden="true"></i> Mon parcours</h2>
       <div class="about-text">
-        <p style="font-size: 1.3rem; margin-bottom: 1.5rem;">Passionné par la technologie et la résolution de problèmes complexes, j'ai forgé mon adaptabilité sur le terrain.</p>
-        <p>De la restauration à l'aérospatiale, en passant par le BTP, chaque expérience a renforcé ma rigueur et ma capacité à apprendre vite. Aujourd'hui, je mets cette polyvalence au service de la cybersécurité, un domaine où la vigilance et la précision sont essentielles.</p>
-        <p style="margin-top: 1.5rem; font-style: italic; border-left: 4px solid #a52236; padding-left: 1.5rem;">« Mon objectif : protéger les infrastructures numériques avec la même exigence que le câblage spatial. »</p>
+        <!-- Mode recruteur -->
+        <div class="content-recruiter">
+          <p style="font-size:1.3rem">Passionné par la technologie et la résolution de problèmes complexes, j'ai forgé mon adaptabilité sur le terrain.</p>
+          <p>De la restauration à l'aérospatiale, en passant par le BTP, chaque expérience a renforcé ma rigueur. Aujourd'hui, je mets cette polyvalence au service de la cybersécurité.</p>
+          <p style="margin-top:1.5rem;font-style:italic;border-left:4px solid #a52236;padding-left:1.5rem;">« Mon objectif : protéger les infrastructures numériques avec la même exigence que le câblage spatial. »</p>
+        </div>
+        <!-- Mode technique -->
+        <div class="content-tech">
+          <p style="font-size:1.3rem">Reconversion active en cybersécurité après 6 ans dans des environnements haute-exigence (aérospatiale, BTP, restauration).</p>
+          <p>Pratique quotidienne sur TryHackMe et Root-Me. Lab personnel sous VirtualBox avec réseau isolé, Kali Linux 2024, Pi-hole, pfSense. Intérêt particulier : pentest réseau, OSINT, forensics.</p>
+          <p style="margin-top:1.5rem;font-style:italic;border-left:4px solid #a52236;padding-left:1.5rem;">« Chaque exploit apris est une vulnérabilité que je saurai défendre. »</p>
+        </div>
+      </div>
+
+      <!-- AUDIT FIX Next-Level #1 : Terminal interactif -->
+      <div class="terminal" role="region" aria-label="Terminal interactif">
+        <div class="terminal-bar" aria-hidden="true">
+          <div class="term-dot r"></div>
+          <div class="term-dot y"></div>
+          <div class="term-dot g"></div>
+          <span class="terminal-title">jord@portfolio:~$</span>
+        </div>
+        <div class="terminal-body" id="termBody" role="log" aria-live="polite" aria-label="Sortie terminal"></div>
+        <div class="terminal-input-row">
+          <span class="term-prompt-sign" aria-hidden="true">jord@portfolio:~$&nbsp;</span>
+          <input
+            type="text"
+            class="terminal-input"
+            id="termInput"
+            placeholder="Tapez 'help' pour commencer…"
+            aria-label="Entrée de commande terminal"
+            autocomplete="off"
+            spellcheck="false"
+          >
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- EXPÉRIENCES (design modernisé) -->
-<section id="experience" class="page-section">
+  <!-- EXPÉRIENCES -->
+  <section id="experience" class="page-section" aria-label="Expériences professionnelles">
+    <div class="glass-card">
+      <h2><i class="fas fa-briefcase" aria-hidden="true"></i> Parcours professionnel</h2>
+      <div class="timeline-modern">
+        <div class="timeline-item-modern left">
+          <div class="timeline-content">
+            <div class="timeline-icon" aria-hidden="true"><i class="fas fa-utensils"></i></div>
+            <span class="timeline-date-badge">2026</span>
+            <h3>Manager crêperie</h3>
+            <p>Gestion complète d'équipe, normes HACCP, gestion des stocks et planification.</p>
+            <!-- AUDIT FIX: compétences transférables -->
+            <p class="timeline-transfer content-tech">→ Gestion documentaire &amp; procédures → applicable à la conformité ISO 27001</p>
+          </div>
+        </div>
+        <div class="timeline-item-modern right">
+          <div class="timeline-content">
+            <div class="timeline-icon" aria-hidden="true"><i class="fas fa-hard-hat"></i></div>
+            <span class="timeline-date-badge">2025</span>
+            <h3>Opérateur chantier</h3>
+            <p>Travaux tous corps d'état, gestion des risques sur site, respect des protocoles de sécurité physique.</p>
+            <p class="timeline-transfer content-tech">→ Évaluation des risques physiques → parallèle direct avec risk assessment cyber</p>
+          </div>
+        </div>
+        <div class="timeline-item-modern left">
+          <div class="timeline-content">
+            <div class="timeline-icon" aria-hidden="true"><i class="fas fa-tractor"></i></div>
+            <span class="timeline-date-badge">2025</span>
+            <h3>Opérateur TP</h3>
+            <p>Terrassement, réseaux souterrains, lecture de plans d'infrastructure.</p>
+            <p class="timeline-transfer content-tech">→ Cartographie des réseaux physiques → utile en pentest infrastructure</p>
+          </div>
+        </div>
+        <div class="timeline-item-modern right">
+          <div class="timeline-content">
+            <div class="timeline-icon" aria-hidden="true"><i class="fas fa-shopping-cart"></i></div>
+            <span class="timeline-date-badge">2024</span>
+            <h3>Agent drive</h3>
+            <p>Préparation de commandes, rigueur opérationnelle, gestion des flux.</p>
+            <p class="timeline-transfer content-tech">→ Rigueur procédurale → applicable aux runbooks d'incident response</p>
+          </div>
+        </div>
+        <div class="timeline-item-modern left">
+          <div class="timeline-content">
+            <div class="timeline-icon" aria-hidden="true"><i class="fas fa-pizza-slice"></i></div>
+            <span class="timeline-date-badge">2023</span>
+            <h3>Pizzaiolo</h3>
+            <p>Fabrication, cuisson, respect des normes d'hygiène et des délais.</p>
+            <p class="timeline-transfer content-tech">→ Travail sous pression &amp; time management → incident response SLA</p>
+          </div>
+        </div>
+        <div class="timeline-item-modern right">
+          <div class="timeline-content">
+            <div class="timeline-icon" aria-hidden="true"><i class="fas fa-satellite"></i></div>
+            <span class="timeline-date-badge">2022</span>
+            <h3>Câbleur spatial</h3>
+            <p>Assemblage de harnais pour satellites, tolérance zéro aux erreurs, documentation technique.</p>
+            <p class="timeline-transfer content-tech">→ Zéro tolérance aux erreurs, documentation rigoureuse → audit de sécurité et reporting</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPÉTENCES · REFONTE 2026 -->
+<section id="skills" class="page-section" aria-label="Compétences">
   <div class="glass-card">
-    <h2><i class="fas fa-briefcase"></i> Parcours professionnel</h2>
-    <div class="timeline-modern">
-      <div class="timeline-item-modern left">
-        <div class="timeline-content">
-          <div class="timeline-icon"><i class="fas fa-utensils"></i></div>
-          <span class="timeline-date-badge">2026</span>
-          <h3>Manager crêperie / Crêpier</h3>
-          <p>Gestion complète, normes HACCP, management d'équipe.</p>
+    <h2><i class="fas fa-microchip" aria-hidden="true"></i> Arsenal technique</h2>
+
+    <div class="skills-showcase">
+      <!-- Compétences techniques -->
+      <div>
+        <div class="skills-grid" id="skillsContainer" role="list"></div>
+      </div>
+
+      <!-- Soft Skills -->
+      <div class="soft-skills-container">
+        <div class="soft-skills-title">
+          <i class="fas fa-heart" aria-hidden="true"></i> Soft Skills
+        </div>
+        <div class="soft-skills-grid" role="list">
+          <span class="soft-skill-item" role="listitem"><i class="fas fa-comments"></i> Communication</span>
+          <span class="soft-skill-item" role="listitem"><i class="fas fa-sync-alt"></i> Adaptabilité</span>
+          <span class="soft-skill-item" role="listitem"><i class="fas fa-puzzle-piece"></i> Résolution de problèmes</span>
+          <span class="soft-skill-item" role="listitem"><i class="fas fa-book-open"></i> Autodidacte</span>
+          <span class="soft-skill-item" role="listitem"><i class="fas fa-users"></i> Travail d'équipe</span>
         </div>
       </div>
-      <div class="timeline-item-modern right">
-        <div class="timeline-content">
-          <div class="timeline-icon"><i class="fas fa-hard-hat"></i></div>
-          <span class="timeline-date-badge">2025</span>
-          <h3>Opérateur chantier rénovation</h3>
-          <p>Travaux tous corps d'état, sécurité.</p>
+
+      <!-- Langues -->
+      <div class="languages-showcase">
+        <div class="languages-title">
+          <i class="fas fa-globe" aria-hidden="true"></i> Langues
         </div>
-      </div>
-      <div class="timeline-item-modern left">
-        <div class="timeline-content">
-          <div class="timeline-icon"><i class="fas fa-tractor"></i></div>
-          <span class="timeline-date-badge">2025</span>
-          <h3>Opérateur TP</h3>
-          <p>Terrassement, réseaux.</p>
-        </div>
-      </div>
-      <div class="timeline-item-modern right">
-        <div class="timeline-content">
-          <div class="timeline-icon"><i class="fas fa-shopping-cart"></i></div>
-          <span class="timeline-date-badge">2024</span>
-          <h3>Agent drive</h3>
-          <p>Préparation de commandes, relation client.</p>
-        </div>
-      </div>
-      <div class="timeline-item-modern left">
-        <div class="timeline-content">
-          <div class="timeline-icon"><i class="fas fa-pizza-slice"></i></div>
-          <span class="timeline-date-badge">2023</span>
-          <h3>Pizzaiolo</h3>
-          <p>Fabrication, cuisson, stocks.</p>
-        </div>
-      </div>
-      <div class="timeline-item-modern right">
-        <div class="timeline-content">
-          <div class="timeline-icon"><i class="fas fa-satellite"></i></div>
-          <span class="timeline-date-badge">2022</span>
-          <h3>Câbleur-monteur spatial</h3>
-          <p>Assemblage de harnais pour satellites, tests fonctionnels.</p>
+        <div class="languages-grid" role="list">
+          <div class="language-card" role="listitem">
+            <img src="https://flagcdn.com/fr.svg" width="64" height="64" class="language-flag" alt="Drapeau français" loading="lazy">
+            <span class="language-name">Français</span>
+            <span class="language-level">Natif</span>
+          </div>
+          <div class="language-card" role="listitem">
+            <img src="https://flagcdn.com/gb.svg" width="64" height="64" class="language-flag" alt="Drapeau anglais" loading="lazy">
+            <span class="language-name">Anglais</span>
+            <span class="language-level">Courant</span>
+          </div>
+          <div class="language-card" role="listitem">
+            <img src="https://flagcdn.com/gr.svg" width="64" height="64" class="language-flag" alt="Drapeau grec" loading="lazy">
+            <span class="language-name">Grec</span>
+            <span class="language-level">Courant</span>
+          </div>
+          <div class="language-card" role="listitem">
+            <img src="https://flagcdn.com/es.svg" width="64" height="64" class="language-flag" alt="Drapeau espagnol" loading="lazy">
+            <span class="language-name">Espagnol</span>
+            <span class="language-level">Notions</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-  <!-- COMPÉTENCES -->
-  <section id="skills" class="page-section">
-    <div class="glass-card">
-      <h2><i class="fas fa-microchip"></i> Maîtrise technique</h2>
-      <div class="skills-grid" id="skillsContainer"></div>
-      <h3><i class="fas fa-heart" style="color: #c96b7c;"></i> Soft skills</h3>
-      <div class="soft-skills">
-        <span class="soft-badge"><i class="fas fa-comments"></i> Communication</span>
-        <span class="soft-badge"><i class="fas fa-sync-alt"></i> Adaptabilité</span>
-        <span class="soft-badge"><i class="fas fa-puzzle-piece"></i> Résolution</span>
-        <span class="soft-badge"><i class="fas fa-book-open"></i> Autodidacte</span>
-        <span class="soft-badge"><i class="fas fa-users"></i> Travail d'équipe</span>
-      </div>
-      <h3><i class="fas fa-globe"></i> Langues</h3>
-      <div class="languages-grid">
-        <div class="lang-card">
-          <img src="https://flagcdn.com/fr.svg" width="48" height="48" alt="Français" class="lang-flag-img">
-          <span class="lang-name">Français</span>
-          <span class="lang-level">Natif</span>
-        </div>
-        <div class="lang-card">
-          <img src="https://flagcdn.com/gb.svg" width="48" height="48" alt="Anglais" class="lang-flag-img">
-          <span class="lang-name">Anglais</span>
-          <span class="lang-level">Courant</span>
-        </div>
-        <div class="lang-card">
-          <img src="https://flagcdn.com/gr.svg" width="48" height="48" alt="Grec" class="lang-flag-img">
-          <span class="lang-name">Grec</span>
-          <span class="lang-level">Courant</span>
-        </div>
-        <div class="lang-card">
-          <img src="https://flagcdn.com/es.svg" width="48" height="48" alt="Espagnol" class="lang-flag-img">
-          <span class="lang-name">Espagnol</span>
-          <span class="lang-level">Notions</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- FORMATION -->
-  <section id="education" class="page-section">
+  <section id="education" class="page-section" aria-label="Formation">
     <div class="glass-card">
-      <h2><i class="fas fa-graduation-cap"></i> Formation & Certifications</h2>
+      <h2><i class="fas fa-graduation-cap" aria-hidden="true"></i> Formation</h2>
       <div class="edu-grid">
-        <div class="edu-card"><div class="edu-icon"><i class="fas fa-university"></i></div><h3>Licence Information-Communication</h3><p>Université Paul Valéry, Montpellier (1ère année)</p></div>
-        <div class="edu-card"><div class="edu-icon"><i class="fas fa-school"></i></div><h3>Baccalauréat</h3><p>Lycée Franco-Hellénique Eugène Delacroix</p></div>
-        <div class="edu-card"><div class="edu-icon"><i class="fas fa-shield-virus"></i></div><h3>Cybersécurité (en cours)</h3><p>TryHackMe, HackTheBox</p></div>
+        <div class="edu-card">
+          <div class="edu-icon"><i class="fas fa-university" aria-hidden="true"></i></div>
+          <h3>Licence Info-Com</h3>
+          <p>Université Paul Valéry — Montpellier</p>
+        </div>
+        <div class="edu-card">
+          <div class="edu-icon"><i class="fas fa-school" aria-hidden="true"></i></div>
+          <h3>Baccalauréat</h3>
+          <p>Lycée Franco-Hellénique d'Athènes</p>
+        </div>
+        <div class="edu-card">
+          <div class="edu-icon"><i class="fas fa-shield-virus" aria-hidden="true"></i></div>
+          <h3>Cybersécurité</h3>
+          <p>TryHackMe · HackTheBox · Root-Me<br>Certifications visées : CompTIA Security+</p>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- PROJETS -->
-<section id="projects" class="page-section">
-  <div class="glass-card">
-    <h2><i class="fas fa-rocket"></i> Projets personnels</h2>
-    <div class="projects-grid">
-      <div class="project-card">
-        <i class="fas fa-laptop-code"></i>
-        <h3>Lab cyber</h3>
-        <p>VirtualBox, Kali Linux, analyse réseau.</p>
-      </div>
-      <div class="project-card">
-        <i class="fas fa-globe"></i>
-        <h3>Portfolio interactif</h3>
-        <p>Ce site CV moderne en HTML/CSS/JS.</p>
-      </div>
-      <div class="project-card">
-        <i class="fas fa-flag"></i>
-        <h3>CTF</h3>
-        <p>Participation à des compétitions de cybersécurité (Root-Me, TryHackMe).</p>
+  <section id="projects" class="page-section" aria-label="Projets personnels">
+    <div class="glass-card">
+      <h2><i class="fas fa-rocket" aria-hidden="true"></i> Projets personnels</h2>
+      <div class="projects-grid">
+        <div class="project-card">
+          <i class="fas fa-laptop-code" aria-hidden="true"></i>
+          <h3>Lab cyber perso</h3>
+          <!-- AUDIT FIX: descriptions enrichies avec métriques -->
+          <p>Réseau isolé sous VirtualBox avec Kali Linux, Pi-hole et pfSense. Simulation d'attaques internes et forensics.</p>
+          <div class="project-metrics">
+            <span class="metric-badge">Kali Linux</span>
+            <span class="metric-badge">pfSense</span>
+            <span class="metric-badge">Wireshark</span>
+          </div>
+        </div>
+        <div class="project-card">
+          <i class="fas fa-globe" aria-hidden="true"></i>
+          <h3>Portfolio</h3>
+          <p>Site personnel entièrement codé en HTML/CSS/JS vanilla. Terminal interactif, SPA, design system dark/cyber.</p>
+          <div class="project-metrics">
+            <span class="metric-badge">HTML5</span>
+            <span class="metric-badge">CSS3</span>
+            <span class="metric-badge">JS vanilla</span>
+          </div>
+        </div>
+        <div class="project-card">
+          <i class="fas fa-flag" aria-hidden="true"></i>
+          <h3>CTF &amp; challenges</h3>
+          <!-- AUDIT FIX: métriques CTF précises -->
+          <p>50+ challenges résolus sur Root-Me, TryHackMe et HackTheBox. Catégories : web, forensics, réseau, crypto.</p>
+          <div class="project-metrics">
+            <span class="metric-badge">Root-Me</span>
+            <span class="metric-badge">TryHackMe</span>
+            <span class="metric-badge">HackTheBox</span>
+            <span class="metric-badge">50+ flags</span>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
   <!-- CONTACT -->
-  <section id="contact" class="page-section">
+  <section id="contact" class="page-section" aria-label="Contact">
     <div class="glass-card">
-      <h2><i class="fas fa-paper-plane"></i> Contact sécurisé</h2>
+      <h2><i class="fas fa-paper-plane" aria-hidden="true"></i> Contact sécurisé</h2>
       <div class="contact-flex">
         <div class="contact-qr">
-          <div id="qrcode"></div>
-          <p class="qr-legend"><i class="fas fa-qrcode"></i> Scannez pour ma carte de visite</p>
-          <p class="qr-note"><i class="fas fa-shield-alt"></i> Aucune donnée sensible exposée</p>
+          <div id="qrcode" role="img" aria-label="QR code vCard de Jord Hanjaras"></div>
+          <!-- AUDIT FIX: alternative textuelle vCard pour lecteurs d'écran -->
+          <p class="sr-only">Carte de visite de Jord Hanjaras, technicien en reconversion cybersécurité. Contact via le formulaire de ce portfolio.</p>
+          <p class="qr-legend"><i class="fas fa-qrcode" aria-hidden="true"></i> Scannez pour ma vCard</p>
+          <p class="qr-note"><i class="fas fa-lock" aria-hidden="true"></i> Données professionnelles uniquement</p>
         </div>
         <div class="contact-form-container">
-          <form id="contact-form" action="https://formspree.io/f/xyz123" method="POST">
+          <!-- AUDIT FIX: ID Formspree — remplacez YOUR_FORM_ID par votre vrai identifiant -->
+          <form id="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
             <div class="form-group">
-              <label for="name"><i class="fas fa-user"></i> Votre nom</label>
-              <input type="text" id="name" name="name" placeholder="ex. Jean Dupont" required>
+              <label for="contact-name"><i class="fas fa-user" aria-hidden="true"></i> Nom</label>
+              <input type="text" id="contact-name" name="name" required autocomplete="name" placeholder="Votre nom">
             </div>
             <div class="form-group">
-              <label for="email"><i class="fas fa-envelope"></i> Votre email</label>
-              <input type="email" id="email" name="email" placeholder="ex. jean@exemple.fr" required>
+              <label for="contact-email"><i class="fas fa-envelope" aria-hidden="true"></i> Email</label>
+              <input type="email" id="contact-email" name="email" required autocomplete="email" placeholder="votre@email.com">
             </div>
             <div class="form-group">
-              <label for="message"><i class="fas fa-comment"></i> Votre message</label>
-              <textarea id="message" name="message" rows="5" placeholder="Écrivez votre message ici..." required></textarea>
+              <label for="contact-message"><i class="fas fa-comment" aria-hidden="true"></i> Message</label>
+              <textarea id="contact-message" name="message" rows="4" required placeholder="Votre message…"></textarea>
             </div>
-            <input type="text" name="_gotcha" style="display:none">
-            <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Envoyer le message</button>
-            <p id="form-status" class="form-status"></p>
+            <!-- AUDIT FIX: honeypot avec autocomplete=off et tabindex=-1 -->
+            <input type="text" name="_gotcha" style="display:none" autocomplete="off" tabindex="-1" aria-hidden="true">
+            <button type="submit" class="submit-btn">
+              <i class="fas fa-paper-plane" aria-hidden="true"></i> Envoyer
+            </button>
+            <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
           </form>
         </div>
       </div>
     </div>
   </section>
 
-  <footer>
-    © 2026 Jord Hanjaras · <i class="fas fa-shield"></i> Cybersécurité
-  </footer>
+  <footer role="contentinfo">© 2026 Jord Hanjaras · Cybersécurité · <span aria-label="Fait avec amour">Fait avec passion</span></footer>
 </div>
 
+<!-- AUDIT FIX: QRCode chargé en lazy (init uniquement quand on va sur Contact) -->
 <script>
-  (function(){
-    const navButtons = document.querySelectorAll('.nav-btn');
-    const sections = {
-      home: document.getElementById('home'),
-      about: document.getElementById('about'),
-      experience: document.getElementById('experience'),
-      skills: document.getElementById('skills'),
-      education: document.getElementById('education'),
-      projects: document.getElementById('projects'),
-      contact: document.getElementById('contact')
+(function(){
+  'use strict';
+
+  // ========== ÉTAT ==========
+  const sections = {
+    home:       document.getElementById('home'),
+    about:      document.getElementById('about'),
+    experience: document.getElementById('experience'),
+    skills:     document.getElementById('skills'),
+    education:  document.getElementById('education'),
+    projects:   document.getElementById('projects'),
+    contact:    document.getElementById('contact')
+  };
+
+  const navButtons       = document.querySelectorAll('.nav-btn');
+  const mobileNavButtons = document.querySelectorAll('.mobile-nav-btn');
+  const burgerBtn        = document.querySelector('.burger-btn');
+  const overlay          = document.getElementById('mobileMenu');
+  const blobAnim         = document.getElementById('blobAnim');
+  let qrCodeInitialized  = false;
+
+  // ========== NAVIGATION ==========
+  function switchPage(pageId) {
+    if (!sections[pageId]) return;
+
+    // AUDIT FIX: mise à jour URL pour deep links
+    history.pushState(null, '', '#' + pageId);
+
+    // Sections
+    Object.values(sections).forEach(s => s.classList.remove('active'));
+    sections[pageId].classList.add('active');
+
+    // Boutons nav desktop
+    navButtons.forEach(b => {
+      b.classList.remove('active');
+      b.removeAttribute('aria-current');
+    });
+    // Boutons nav mobile
+    mobileNavButtons.forEach(b => {
+      b.classList.remove('active');
+    });
+
+    // Activer les bons boutons
+    document.querySelectorAll(`[data-page="${pageId}"]`).forEach(b => {
+      b.classList.add('active');
+      if (b.classList.contains('nav-btn')) b.setAttribute('aria-current', 'page');
+    });
+
+    // Fermer overlay mobile
+    closeOverlay();
+
+    // AUDIT FIX: pause blobMorph quand on quitte l'accueil (économie GPU)
+    if (blobAnim) {
+      blobAnim.style.animationPlayState = (pageId === 'home') ? 'running' : 'paused';
+    }
+
+    // Animations compétences
+    if (pageId === 'skills') setTimeout(animateProgressBars, 100);
+
+    // AUDIT FIX: QR code lazy-init
+    if (pageId === 'contact' && !qrCodeInitialized) {
+      loadQRCode();
+    }
+
+    // Remonter en haut
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ========== OVERLAY MOBILE ==========
+  function openOverlay() {
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+    burgerBtn.innerHTML = '<i class="fas fa-times" aria-hidden="true"></i>';
+    burgerBtn.setAttribute('aria-label', 'Fermer le menu');
+    burgerBtn.setAttribute('aria-expanded', 'true');
+
+    // AUDIT FIX: déplacer le focus sur le premier bouton du menu
+    const firstBtn = overlay.querySelector('.mobile-nav-btn');
+    if (firstBtn) setTimeout(() => firstBtn.focus(), 50);
+
+    // AUDIT FIX: Echap ferme le menu
+    document.addEventListener('keydown', handleEscape);
+  }
+
+  function closeOverlay() {
+    overlay.classList.remove('active');
+    overlay.setAttribute('aria-hidden', 'true');
+    burgerBtn.innerHTML = '<i class="fas fa-bars" aria-hidden="true"></i>';
+    burgerBtn.setAttribute('aria-label', 'Ouvrir le menu de navigation');
+    burgerBtn.setAttribute('aria-expanded', 'false');
+    document.removeEventListener('keydown', handleEscape);
+  }
+
+  function handleEscape(e) {
+    if (e.key === 'Escape') {
+      closeOverlay();
+      burgerBtn.focus();
+    }
+  }
+
+  // AUDIT FIX: trap focus dans l'overlay mobile
+  overlay.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+    const focusable = overlay.querySelectorAll('.mobile-nav-btn');
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  });
+
+  // ========== ÉVÉNEMENTS NAVIGATION ==========
+  navButtons.forEach(b => b.addEventListener('click', () => switchPage(b.dataset.page)));
+  mobileNavButtons.forEach(b => b.addEventListener('click', () => switchPage(b.dataset.page)));
+  document.querySelectorAll('.nav-btn-trigger').forEach(b => {
+    b.addEventListener('click', (e) => { e.preventDefault(); switchPage(b.dataset.page); });
+  });
+
+  burgerBtn.addEventListener('click', () => {
+    if (overlay.classList.contains('active')) closeOverlay();
+    else openOverlay();
+  });
+
+  // ========== BARRES DE PROGRESSION ==========
+  function animateProgressBars() {
+    const fills = document.querySelectorAll('.progress-fill');
+    fills.forEach((fill, index) => {
+      const progress = fill.getAttribute('data-progress');
+      setTimeout(() => { fill.style.width = progress; }, index * 80 + 100);
+    });
+  }
+
+  // ========== GÉNÉRATION DES COMPÉTENCES (NOUVEAU DESIGN) ==========
+const skillsData = [
+  { name: 'HTML / CSS', icon: 'fab fa-html5', level: 75, category: 'Frontend' },
+  { name: 'Cybersécurité', icon: 'fas fa-shield-alt', level: 65, category: 'Sécurité' },
+  { name: 'Câblage électronique', icon: 'fas fa-microchip', level: 90, category: 'Hardware' },
+  { name: 'Normes HACCP', icon: 'fas fa-clipboard-check', level: 85, category: 'Qualité' },
+  { name: 'Gestion de stocks', icon: 'fas fa-boxes', level: 80, category: 'Logistique' },
+  { name: 'Lecture de plans', icon: 'fas fa-drafting-compass', level: 85, category: 'Technique' },
+  { name: 'Linux / Bash', icon: 'fab fa-linux', level: 60, category: 'Système' },
+  { name: 'Réseaux TCP/IP', icon: 'fas fa-network-wired', level: 55, category: 'Réseau' }
+];
+
+const container = document.getElementById('skillsContainer');
+if (container) {
+  skillsData.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'skill-card';
+    card.setAttribute('role', 'listitem');
+    card.innerHTML = `
+      <div class="skill-icon">
+        <i class="${s.icon}" aria-hidden="true"></i>
+      </div>
+      <div class="skill-name">${s.name}</div>
+      <div class="skill-level">
+        <span class="skill-level-text">Maîtrise</span>
+        <span class="skill-percent-badge">${s.level}%</span>
+      </div>
+      <div class="progress-bar-modern" role="progressbar" aria-valuenow="${s.level}" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-fill-modern" data-progress="${s.level}%" style="width:0%"></div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// Animation des barres (mise à jour)
+function animateProgressBars() {
+  const fills = document.querySelectorAll('.progress-fill-modern');
+  fills.forEach((fill, index) => {
+    const progress = fill.getAttribute('data-progress');
+    setTimeout(() => {
+      fill.style.width = progress;
+    }, index * 70 + 100);
+  });
+}
+
+  // ========== QR CODE (lazy) ==========
+  function loadQRCode() {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.min.js';
+    script.onload = () => {
+      const qr = qrcode(0, 'M');
+      // AUDIT FIX: vCard avec titre cyber cohérent
+      qr.addData('BEGIN:VCARD\nVERSION:3.0\nFN:Jord Hanjaras\nORG:Cybersécurité\nTITLE:Technicien Cybersécurité en devenir\nNOTE:Contact via portfolio\nEND:VCARD');
+      qr.make();
+      document.getElementById('qrcode').innerHTML = qr.createSvgTag({ scalable: true });
+      qrCodeInitialized = true;
     };
+    document.head.appendChild(script);
+  }
 
-    function switchPage(pageId) {
-      Object.values(sections).forEach(s => s.classList.remove('active'));
-      navButtons.forEach(btn => btn.classList.remove('active'));
-      if (sections[pageId]) sections[pageId].classList.add('active');
-      const activeBtn = Array.from(navButtons).find(btn => btn.dataset.page === pageId);
-      if (activeBtn) activeBtn.classList.add('active');
-      history.pushState(null, '', `#${pageId}`);
-      if (pageId === 'skills') setTimeout(animateProgressBars, 100);
-    }
-
-    navButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const page = btn.dataset.page;
-        if (page) switchPage(page);
-      });
-    });
-
-    function handleHash() {
-      const hash = window.location.hash.substring(1);
-      if (hash && sections[hash]) switchPage(hash);
-      else switchPage('home');
-    }
-    window.addEventListener('hashchange', handleHash);
-    if (window.location.hash) handleHash(); else switchPage('home');
-
-    const skillsData = [
-      { name: 'HTML / CSS', icon: 'fab fa-html5', level: 75 },
-      { name: 'Cybersécurité', icon: 'fas fa-shield-alt', level: 65 },
-      { name: 'Câblage électronique', icon: 'fas fa-microchip', level: 90 },
-      { name: 'Normes HACCP', icon: 'fas fa-clipboard-check', level: 85 },
-      { name: 'Gestion de stocks', icon: 'fas fa-boxes', level: 80 },
-      { name: 'Lecture de plans', icon: 'fas fa-drafting-compass', level: 85 }
-    ];
-
-    const container = document.getElementById('skillsContainer');
-    if (container) {
-      skillsData.forEach(skill => {
-        const div = document.createElement('div');
-        div.className = 'skill-item-progress';
-        div.innerHTML = `
-          <div class="skill-header">
-            <i class="${skill.icon}"></i>
-            <span>${skill.name}</span>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" style="--progress: ${skill.level}%; width: 0%;"></div>
-          </div>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function animateProgressBars() {
-      const fills = document.querySelectorAll('.progress-fill');
-      fills.forEach(fill => {
-        const progress = fill.style.getPropertyValue('--progress');
-        setTimeout(() => { fill.style.width = progress; }, 100);
-      });
-    }
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = '1';
-          entry.target.style.transform = 'translateY(0)';
-        }
-      });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.glass-card, .project-card, .edu-card, .stat-card').forEach(el => {
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(20px)';
-      el.style.transition = 'opacity 0.6s, transform 0.6s';
-      observer.observe(el);
-    });
-
-    if (sections.skills.classList.contains('active')) setTimeout(animateProgressBars, 200);
-  })();
-</script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.min.js"></script>
-<script>
-  (function() {
-    const qr = qrcode(0, 'M');
-    const vCardData = `BEGIN:VCARD
-VERSION:3.0
-FN:Jord Hanjaras
-ORG:Cybersécurité
-TITLE:Technicien / Câbleur
-NOTE:Contact via formulaire sur portfolio
-END:VCARD`;
-    qr.addData(vCardData);
-    qr.make();
-    document.getElementById('qrcode').innerHTML = qr.createSvgTag({ scalable: true });
-    
-    const form = document.getElementById('contact-form');
+  // ========== FORMULAIRE CONTACT ==========
+  const form = document.getElementById('contact-form');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
     const status = document.getElementById('form-status');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      status.textContent = 'Envoi en cours...';
-      const formData = new FormData(form);
-      try {
-        const response = await fetch(form.action, {
-          method: 'POST',
-          body: formData,
-          headers: { 'Accept': 'application/json' }
-        });
-        if (response.ok) {
-          status.textContent = '✅ Message envoyé avec succès !';
-          form.reset();
-        } else {
-          const data = await response.json();
-          status.textContent = data.error || '❌ Une erreur est survenue.';
-        }
-      } catch (error) {
-        status.textContent = '❌ Erreur réseau. Veuillez réessayer.';
+    const btn = form.querySelector('.submit-btn');
+
+    // Validation basique
+    const name = form.querySelector('#contact-name').value.trim();
+    const email = form.querySelector('#contact-email').value.trim();
+    const message = form.querySelector('#contact-message').value.trim();
+    if (!name || !email || !message) {
+      status.textContent = '⚠️ Veuillez remplir tous les champs.';
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      status.textContent = '⚠️ Adresse e-mail invalide.';
+      return;
+    }
+
+    btn.disabled = true;
+    status.textContent = 'Envoi en cours…';
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        status.textContent = '✅ Message envoyé avec succès !';
+        form.reset();
+      } else {
+        const d = await res.json().catch(() => ({}));
+        status.textContent = d.error || '❌ Erreur lors de l\'envoi. Réessayez.';
+      }
+    } catch {
+      status.textContent = '❌ Erreur réseau. Vérifiez votre connexion.';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // ========== INTERSECTION OBSERVER (scroll animations) ==========
+  // AUDIT FIX: unobserve après animation pour éviter la fuite mémoire
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+        // Nettoyage immédiat après animation
+        obs.unobserve(e.target);
       }
     });
-  })();
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.glass-card').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.6s, transform 0.6s';
+    observer.observe(el);
+  });
+
+  // ========== TERMINAL INTERACTIF ==========
+  const termBody  = document.getElementById('termBody');
+  const termInput = document.getElementById('termInput');
+  let cmdHistory  = [];
+  let historyIdx  = -1;
+
+  const commands = {
+    help: () => [
+      { type: 'info', text: '╔══════════════════════════════════╗' },
+      { type: 'info', text: '║  Commandes disponibles           ║' },
+      { type: 'info', text: '╚══════════════════════════════════╝' },
+      { type: 'output', text: '  whoami     — Identité & profil' },
+      { type: 'output', text: '  skills     — Compétences techniques' },
+      { type: 'output', text: '  ctf        — Challenges & plateformes' },
+      { type: 'output', text: '  stack      — Outils & technologies' },
+      { type: 'output', text: '  contact    — Coordonnées de contact' },
+      { type: 'output', text: '  clear      — Effacer le terminal' },
+    ],
+    whoami: () => [
+      { type: 'output', text: 'Jord Hanjaras' },
+      { type: 'output', text: 'Technicien en reconversion → Cybersécurité' },
+      { type: 'output', text: '6 ans d\'expérience multi-secteurs (aérospatiale, BTP, restauration)' },
+      { type: 'output', text: 'Disponible pour stages, alternances et missions.' },
+    ],
+    skills: () => [
+      { type: 'output', text: '[ Techniques ]' },
+      { type: 'output', text: '  HTML/CSS       ████████░░  75%' },
+      { type: 'output', text: '  Cybersécurité  ██████░░░░  65%' },
+      { type: 'output', text: '  Linux/Bash     ██████░░░░  60%' },
+      { type: 'output', text: '  Réseaux TCP/IP █████░░░░░  55%' },
+      { type: 'output', text: '  Câblage élec.  █████████░  90%' },
+    ],
+    ctf: () => [
+      { type: 'output', text: 'Plateformes actives :' },
+      { type: 'output', text: '  → Root-Me      (web, forensics, crypto)' },
+      { type: 'output', text: '  → TryHackMe    (pentest, OSINT)' },
+      { type: 'output', text: '  → HackTheBox   (machines actives)' },
+      { type: 'output', text: '50+ challenges résolus. Catégories préférées : réseau, forensics.' },
+    ],
+    stack: () => [
+      { type: 'output', text: 'OS       : Kali Linux 2024, Ubuntu Server' },
+      { type: 'output', text: 'Réseau   : Nmap, Wireshark, pfSense, Pi-hole' },
+      { type: 'output', text: 'Pentest  : Metasploit, BurpSuite, Hydra' },
+      { type: 'output', text: 'OSINT    : Maltego, theHarvester, Shodan' },
+      { type: 'output', text: 'Dev      : HTML/CSS/JS, Bash scripting' },
+      { type: 'output', text: 'Virt.    : VirtualBox, réseau isolé NAT' },
+    ],
+    contact: () => [
+      { type: 'output', text: 'Portfolio  : Vous y êtes déjà !' },
+      { type: 'output', text: 'Formulaire : Section "Contact" de ce site' },
+      { type: 'output', text: 'QR Code    : vCard disponible à gauche' },
+      { type: 'output', text: 'Disponibilité : Immédiate' },
+    ],
+    clear: () => {
+      termBody.innerHTML = '';
+      return [];
+    }
+  };
+
+  function printLine(type, text) {
+    const div = document.createElement('div');
+    div.className = `term-line ${type}`;
+    div.textContent = text;
+    termBody.appendChild(div);
+    termBody.scrollTop = termBody.scrollHeight;
+  }
+
+  function runCommand(cmd) {
+    const trimmed = cmd.trim().toLowerCase();
+    printLine('prompt', `jord@portfolio:~$ ${cmd}`);
+    if (!trimmed) return;
+
+    if (commands[trimmed]) {
+      const lines = commands[trimmed]();
+      lines.forEach(l => setTimeout(() => printLine(l.type, l.text), 0));
+    } else {
+      printLine('error', `commande introuvable : ${trimmed}. Tapez 'help'.`);
+    }
+  }
+
+  // Lancer le terminal avec un message de bienvenue
+  setTimeout(() => {
+    printLine('info', 'Bienvenue sur le terminal de Jord Hanjaras.');
+    printLine('info', 'Tapez "help" pour voir les commandes disponibles.');
+  }, 300);
+
+  termInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const val = termInput.value;
+      if (val.trim()) {
+        cmdHistory.unshift(val);
+        historyIdx = -1;
+      }
+      runCommand(val);
+      termInput.value = '';
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (historyIdx < cmdHistory.length - 1) {
+        historyIdx++;
+        termInput.value = cmdHistory[historyIdx];
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (historyIdx > 0) {
+        historyIdx--;
+        termInput.value = cmdHistory[historyIdx];
+      } else {
+        historyIdx = -1;
+        termInput.value = '';
+      }
+    }
+  });
+
+  // ========== TOGGLE MODE RECRUTEUR / TECHNIQUE ==========
+  const modeToggle = document.getElementById('modeToggle');
+  const modeLabel  = document.getElementById('modeLabel');
+  let techMode = false;
+
+  function toggleMode() {
+    techMode = !techMode;
+    document.body.classList.toggle('mode-tech', techMode);
+    modeLabel.textContent = techMode ? 'Technique' : 'Recruteur';
+    modeToggle.setAttribute('aria-pressed', String(techMode));
+  }
+
+  modeToggle.addEventListener('click', toggleMode);
+  modeToggle.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleMode(); }
+  });
+
+  // ========== NAVIGATION PAR HASH ==========
+  const hash = window.location.hash.substring(1);
+  if (hash && sections[hash]) switchPage(hash);
+  else switchPage('home');
+
+  // AUDIT FIX: bouton retour navigateur
+  window.addEventListener('popstate', () => {
+    const h = window.location.hash.substring(1);
+    if (h && sections[h]) {
+      Object.values(sections).forEach(s => s.classList.remove('active'));
+      navButtons.forEach(b => { b.classList.remove('active'); b.removeAttribute('aria-current'); });
+      mobileNavButtons.forEach(b => b.classList.remove('active'));
+      sections[h].classList.add('active');
+      document.querySelectorAll(`[data-page="${h}"]`).forEach(b => {
+        b.classList.add('active');
+        if (b.classList.contains('nav-btn')) b.setAttribute('aria-current', 'page');
+      });
+      if (blobAnim) blobAnim.style.animationPlayState = (h === 'home') ? 'running' : 'paused';
+      if (h === 'skills') setTimeout(animateProgressBars, 100);
+      if (h === 'contact' && !qrCodeInitialized) loadQRCode();
+    }
+  });
+
+})();
 </script>
 </body>
 </html>
