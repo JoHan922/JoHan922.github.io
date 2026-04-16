@@ -15,6 +15,7 @@
   connect-src 'self' https://formspree.io;
   base-uri 'self';
   form-action 'self' https://formspree.io;">
+  <meta name="color-scheme" content="dark">
   <title>Jord Hanjaras · Portfolio Cybersécurité</title>
   <!-- AUDIT FIX: preconnect + preload police critique -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -382,17 +383,21 @@
     }
 
     .glass-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 48px;
-      padding: 3rem;
-      border: 1px solid var(--border-color);
-      box-shadow: 0 40px 60px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(220,90,110,0.15) inset;
-      margin-bottom: 2.5rem;
-      color: var(--text-light);
-      transition: transform 0.4s ease, box-shadow 0.4s ease;
+  /* Fallback pour navigateurs anciens ou si la variable n'est pas définie */
+  background: #1a0b0f;
+  /* Utilisation de la variable CSS (prioritaire sur le fallback) */
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 48px;
+  padding: 3rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 40px 60px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(220,90,110,0.15) inset;
+  margin-bottom: 2.5rem;
+  color: var(--text-light);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
     }
+
     .glass-card:hover {
       box-shadow: 0 50px 70px -25px rgba(0,0,0,0.9), 0 0 0 1px rgba(230,100,120,0.3) inset;
       transform: translateY(-4px);
